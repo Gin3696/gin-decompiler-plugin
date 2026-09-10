@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <defs>
+    <linearGradient id="bg7" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#059669"/>
+      <stop offset="100%" style="stop-color:#047857"/>
+    </linearGradient>
+  </defs>
+  <!-- Background rounded square -->
+  <rect x="1" y="1" width="38" height="38" rx="7" fill="url(#bg7)"/>
+  <rect x="1" y="1" width="38" height="38" rx="7" fill="none" stroke="#34D399" stroke-width="0.5" opacity="0.4"/>
+
+  <!-- Left: x.jar box -->
+  <rect x="3" y="9" width="9" height="12" rx="1.5" fill="#064E3B" fill-opacity="0.5" stroke="#A7F3D0" stroke-width="1"/>
+  <rect x="4" y="8" width="7" height="2.5" rx="0.8" fill="#A7F3D0"/>
+  <text x="7.5" y="17" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="2.8" font-weight="bold" fill="#6EE7B7">*.jar</text>
+
+  <!-- Middle: arrow -->
+  <line x1="13" y1="15" x2="21" y2="15" stroke="#6EE7B7" stroke-width="1.2"/>
+  <polygon points="19.5,12 22,15 19.5,18" fill="#6EE7B7"/>
+
+  <!-- Right: x-sources.jar box -->
+  <rect x="24" y="9" width="14" height="12" rx="1.5" fill="#064E3B" fill-opacity="0.5" stroke="#A7F3D0" stroke-width="1"/>
+  <rect x="25" y="8" width="12" height="2.5" rx="0.8" fill="#A7F3D0"/>
+  <text x="31" y="16" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="2.5" font-weight="bold" fill="#6EE7B7">*-sources</text>
+  <text x="31" y="19" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="2.5" font-weight="bold" fill="#6EE7B7">.jar</text>
+
+  <!-- Bottom label -->
+  <text x="20" y="32" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="5" font-weight="bold" fill="#D1FAE5" letter-spacing="0.3">Decompiler</text>
+</svg>

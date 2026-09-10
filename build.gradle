@@ -1,0 +1,56 @@
+plugins {
+    id 'org.jetbrains.intellij.platform' version '2.18.1'
+    id 'java'
+}
+
+group = 'com.decompiler'
+version = '1.0.0'
+
+repositories {
+    maven { url 'https://maven.aliyun.com/repository/central' }
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
+
+dependencies {
+    intellijPlatform {
+        local('d:/idea/install/IntelliJ IDEA 2026.1.4')
+        bundledPlugin('com.intellij.java')
+        bundledPlugin('org.jetbrains.java.decompiler')
+
+        // For publishing: use the appropriate IDE version
+        // intellijIdeaCommunity('2024.3') // or the version you want to build against
+    }
+}
+
+intellijPlatform {
+    pluginConfiguration {
+        ideaVersion {
+            sinceBuild = '233'
+            untilBuild = '261.*'
+        }
+    }
+
+    publishing {
+        token = System.getenv('JETBRAINS_MARKETPLACE_TOKEN')
+        channels = ['stable']
+    }
+
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
