@@ -1,67 +1,67 @@
 # Gin-Decompiler
 
-IntelliJ IDEA 插件：右键 JAR 文件，一键反编译生成 `-sources.jar`，方便在 IDE 中搜索和查看第三方库源码。
+IntelliJ IDEA plugin: Right-click a JAR file to decompile it and generate a `-sources.jar`, making it easy to search and browse third-party library source code in the IDE.
 
-## 功能
+## Features
 
-- 在项目视图中右键点击任意 `.jar` 文件，选择 **Gin-Decompiler**
-- 自动在同目录下生成 `{name}-sources.jar`，包含反编译的 Java 源码
-- 支持 IntelliJ IDEA 2023.3 ~ 2026.1.*
+- Right-click any `.jar` file in the Project view and select **Gin-Decompiler**
+- Automatically generates `{name}-sources.jar` in the same directory, containing decompiled Java source code
+- Supports IntelliJ IDEA 2023.3 ~ 2026.1.*
 
-## 打包插件
+## Build Plugin
 
-### 前置条件
+### Prerequisites
 
 - JDK 17+
-- 本地安装 IntelliJ IDEA（用于提供平台依赖）
+- Local IntelliJ IDEA installation (for platform dependencies)
 
-### 执行打包命令
+### Build Command
 
 ```bash
 ./gradlew buildPlugin
 ```
 
-> Windows 下如果没有 `gradlew`，可使用 `gradle buildPlugin`
+> On Windows, use `gradle buildPlugin` if `gradlew` is not available.
 
-打包完成后，插件 zip 文件生成在：
+After building, the plugin zip file is generated at:
 
 ```
 build/distributions/gin-decompiler-plugin-1.0.0.zip
 ```
 
-## 安装插件
+## Installation
 
-### 方式一：从磁盘安装（推荐本地开发使用）
+### Option 1: Install from Disk (Recommended for Local Development)
 
-1. 打开 IntelliJ IDEA
-2. 进入 **Settings** → **Plugins**
-3. 点击右上角 **⚙ 齿轮图标** → **Install Plugin from Disk...**
-4. 选择 `build/distributions/gin-decompiler-plugin-1.0.0.zip`
-5. 重启 IDE 即可生效
+1. Open IntelliJ IDEA
+2. Go to **Settings** → **Plugins**
+3. Click the **⚙ gear icon** in the top right → **Install Plugin from Disk...**
+4. Select `build/distributions/gin-decompiler-plugin-1.0.0.zip`
+5. Restart the IDE to activate the plugin
 
-### 方式二：从 JetBrains Marketplace 安装
+### Option 2: Install from JetBrains Marketplace
 
-发布到 Marketplace 后，可直接在 IDE 的 Plugins 市场搜索 **Gin-Decompiler** 进行安装。
+Once published to the Marketplace, you can search for **Gin-Decompiler** in the IDE's Plugins marketplace and install it directly.
 
-## 使用方式
+## Usage
 
-1. 在 **Project** 视图中，右键点击任意 `.jar` 文件
-2. 选择 **Gin-Decompiler**
-3. 等待反编译完成，同目录下会生成 `{name}-sources.jar`
-4. 将生成的 `-sources.jar` 添加为项目依赖，即可在 IDE 中正常搜索类名和方法名
+1. In the **Project** view, right-click any `.jar` file
+2. Select **Gin-Decompiler**
+3. Wait for decompilation to complete. A `{name}-sources.jar` will be generated in the same directory
+4. Add the generated `-sources.jar` as a project dependency to search class names and method names in the IDE
 
-## 项目结构
+## Project Structure
 
 ```
 ├── src/main/
 │   ├── java/com/decompiler/
-│   │   └── DecompilerAction.java      # 插件核心逻辑
+│   │   └── DecompilerAction.java      # Core plugin logic
 │   └── resources/META-INF/
-│       ├── plugin.xml                  # 插件描述文件
-│       └── pluginIcon.svg              # 插件图标
-├── build.gradle                        # Gradle 构建配置
-├── gradle.properties                   # Gradle 属性配置
-└── settings.gradle                     # Gradle 项目设置
+│       ├── plugin.xml                  # Plugin descriptor
+│       └── pluginIcon.svg              # Plugin icon
+├── build.gradle                        # Gradle build configuration
+├── gradle.properties                   # Gradle properties
+└── settings.gradle                     # Gradle project settings
 ```
 
 ## License
