@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.decompiler</id>
     <name>Gin-Decompiler</name>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <vendor email="369614389@qq.com">Gin</vendor>
 
     <icon src="/META-INF/pluginIcon.svg"/>
@@ -12,16 +12,32 @@
         <p>Some JARs from Third-party without xxx-source.jar uploaded that caused couldn't search Keys in JARs, use this plugin to decompile JARs to xxx-sources.jar could solve the issue.</p>
         <p>Right-click a .jar file and select <b>Gin-Decompiler</b> to generate a <code>-sources.jar</code>
         with decompiled Java source code.</p>
+        <p>Or select <b>Generate Project from JAR</b> to create a complete Maven/Gradle project with auto-detected dependencies.</p>
+
+        <h3>Features</h3>
+        <ul>
+            <li>Decompile JAR files to -sources.jar</li>
+            <li>Generate Maven/Gradle project from JAR with auto-detected dependencies</li>
+            <li>Auto-detect Java version from class files</li>
+            <li>Scan lib directory for dependencies</li>
+        </ul>
 
         <h3>How to Use</h3>
         <ol>
             <li>In the Project view, right-click any <b>.jar</b> file</li>
-            <li>Select <b>Gin-Decompiler</b></li>
-            <li>A <code>{name}-sources.jar</code> will be generated next to the original JAR</li>
+            <li>Select <b>Gin-Decompiler</b> to generate sources.jar</li>
+            <li>Or select <b>Generate Project from JAR</b> to create a full project</li>
         </ol>
     ]]></description>
 
     <change-notes><![CDATA[
+        <h3>1.1.0</h3>
+        <ul>
+            <li>New: Generate Maven/Gradle project from JAR</li>
+            <li>New: Auto-detect Java version from class files</li>
+            <li>New: Scan lib directory for dependencies</li>
+            <li>Refactored shared decompilation logic</li>
+        </ul>
         <h3>1.0.0</h3>
         <ul>
             <li>Initial release</li>
@@ -39,6 +55,10 @@
         <action id="DecompilerAction" class="com.decompiler.DecompilerAction"
                 text="Gin-Decompiler" description="Decompile JAR to sources.jar">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+        <action id="GenerateProjectAction" class="com.decompiler.GenerateProjectAction"
+                text="Generate Project from JAR" description="Generate Maven/Gradle project from JAR with dependencies">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="DecompilerAction"/>
         </action>
     </actions>
 </idea-plugin>

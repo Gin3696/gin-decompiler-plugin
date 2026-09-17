@@ -13,15 +13,11 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.decompiler.main.Fernflower;
-import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
-import java.util.jar.*;
 
 public class DecompilerAction extends AnAction {
 
@@ -105,7 +101,7 @@ public class DecompilerAction extends AnAction {
             indicator.setText("Extracting classes from " + name);
             indicator.setFraction(0.1);
             Path classesDir = tempDir.resolve("classes");
-            extractJarClasses(jarFile, classesDir);
+            DecompilerHelper.extractJarClasses(jarFile, classesDir);
 
             // Step 2: Decompile using Fernflower
             indicator.setText("Decompiling...");
@@ -117,10 +113,10 @@ public class DecompilerAction extends AnAction {
             options.put(IFernflowerPreferences.LOG_LEVEL, "warn");
 
             Fernflower fernflower = new Fernflower(
-                    new FileBytecodeProvider(classesDir),
-                    new DirectoryResultSaver(classesDir),
+                    new DecompilerHelper.FileBytecodeProvider(classesDir),
+                    new DecompilerHelper.DirectoryResultSaver(classesDir),
                     options,
-                    new DecompilerLogger()
+                    new DecompilerHelper.DecompilerLogger()
             );
 
             fernflower.addSource(classesDir.toFile());
@@ -129,10 +125,7 @@ public class DecompilerAction extends AnAction {
             // Step 3: Pack .java files into sources.jar
             indicator.setText("Creating sources.jar...");
             indicator.setFraction(0.8);
-            long javaCount = Files.walk(classesDir)
-                    .filter(p -> p.toString().endsWith(".java"))
-                    .count();
-            packJavaFiles(classesDir, outputJar);
+            DecompilerHelper.packJavaFiles(classesDir, outputJar);
 
             indicator.setFraction(1.0);
             ApplicationManager.getApplication().invokeLater(() ->
@@ -147,48 +140,6 @@ public class DecompilerAction extends AnAction {
         }
     }
 
-    /**
-     * Extract all .class files from a JAR into a directory tree.
-     */
-    private void extractJarClasses(File jarFile, Path destDir) throws IOException {
-        try (JarFile jar = new JarFile(jarFile)) {
-            Enumeration<JarEntry> entries = jar.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry entry = entries.nextElement();
-                String name = entry.getName();
-                if (name.endsWith(".class") && !entry.isDirectory()) {
-                    Path target = destDir.resolve(name);
-                    Files.createDirectories(target.getParent());
-                    try (InputStream in = jar.getInputStream(entry)) {
-                        Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Pack all .java files from a directory tree into a JAR.
-     */
-    private void packJavaFiles(Path sourceDir, File outputJar) throws IOException {
-        Path root = sourceDir.toAbsolutePath();
-        try (JarOutputStream jos = new JarOutputStream(new FileOutputStream(outputJar))) {
-            Files.walk(sourceDir)
-                    .filter(p -> p.toString().endsWith(".java"))
-                    .forEach(p -> {
-                        try {
-                            String entryName = root.relativize(p.toAbsolutePath())
-                                    .toString()
-                                    .replace(File.separatorChar, '/');
-                            jos.putNextEntry(new JarEntry(entryName));
-                            Files.copy(p, jos);
-                            jos.closeEntry();
-                        } catch (IOException ignored) {
-                        }
-                    });
-        }
-    }
-
     private void deleteRecursively(File dir) {
         if (dir.isDirectory()) {
             File[] children = dir.listFiles();
@@ -199,94 +150,5 @@ public class DecompilerAction extends AnAction {
             }
         }
         dir.delete();
-    }
-
-    // ==================== Fernflower Support Classes ====================
-
-    /**
-     * Provides bytecode (.class file content) from the extracted classes directory.
-     */
-    private static class FileBytecodeProvider implements IBytecodeProvider {
-        private final Path baseDir;
-
-        FileBytecodeProvider(Path baseDir) {
-            this.baseDir = baseDir;
-        }
-
-        @Override
-        public byte[] getBytecode(String externalPath, String internalPath) throws IOException {
-            // When internalPath is null, externalPath contains the full path to the class file
-            Path classFile = internalPath != null ? baseDir.resolve(internalPath) : Path.of(externalPath);
-            return Files.readAllBytes(classFile);
-        }
-    }
-
-    /**
-     * Saves decompiled .java files alongside the original .class files.
-     */
-    private static class DirectoryResultSaver implements IResultSaver {
-        private final Path baseDir;
-
-        DirectoryResultSaver(Path baseDir) {
-            this.baseDir = baseDir;
-        }
-
-        @Override
-        public void saveFolder(String path) {
-        }
-
-        @Override
-        public void copyFile(String source, String path, String entryName) {
-        }
-
-        @Override
-        public void saveClassFile(String path, String qualifiedName,
-                                   String entryName, String content, int[] mapping) {
-            try {
-                Path javaFile = baseDir.resolve(path).resolve(entryName);
-                String javaFileName = javaFile.getFileName().toString();
-                int dot = javaFileName.lastIndexOf('.');
-                if (dot > 0) {
-                    javaFileName = javaFileName.substring(0, dot) + ".java";
-                }
-                Path target = javaFile.resolveSibling(javaFileName);
-                Files.write(target, content.getBytes("UTF-8"));
-            } catch (IOException ignored) {
-            }
-        }
-
-        @Override
-        public void createArchive(String path, String archiveName, Manifest manifest) {
-        }
-
-        @Override
-        public void saveDirEntry(String path, String archiveName, String entryName) {
-        }
-
-        @Override
-        public void copyEntry(String source, String path, String archiveName, String entry) {
-        }
-
-        @Override
-        public void saveClassEntry(String path, String archiveName,
-                                    String qualifiedName, String entryName, String content) {
-        }
-
-        @Override
-        public void closeArchive(String path, String archiveName) {
-        }
-    }
-
-    /**
-     * Minimal logger for Fernflower (suppresses most output).
-     */
-    private static class DecompilerLogger extends IFernflowerLogger {
-        @Override
-        public void writeMessage(String message, Severity severity) {
-        }
-
-        @Override
-        public void writeMessage(String message, Severity severity, Throwable t) {
-        }
     }
 }
